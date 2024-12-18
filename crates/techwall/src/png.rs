@@ -1,15 +1,12 @@
 use image::{DynamicImage, GenericImageView, RgbaImage};
-use std::fs::{self, File};
-use std::io::{BufWriter, Cursor, Read};
-use std::path::{Iter, Path, PathBuf};
 use anyhow::{bail, Result};
 
-const OUTPUT_WIDTH: u32 = 1200;
-const OUTPUT_HEIGHT: u32 = 600;
-const TARGET_VERTICES: usize = 8; // Fixed number of vertices for polygon
+// const OUTPUT_WIDTH: u32 = 1200;
+// const OUTPUT_HEIGHT: u32 = 600;
+// const TARGET_VERTICES: usize = 8; // Fixed number of vertices for polygon
 
 // Function to trim transparent borders from an image
-fn trim_image(image: &DynamicImage) -> DynamicImage {
+fn _trim_image(image: &DynamicImage) -> DynamicImage {
     let (width, height) = image.dimensions();
     let mut left = width;
     let mut right = 0;
@@ -61,15 +58,6 @@ pub fn generate_polygon(image: &RgbaImage, steps: (usize, usize)) -> Vec<Point> 
 fn not_empty(image: &RgbaImage, p: Point) -> bool{
     let (x, y) = p;
     image.get_pixel(x, y)[3] > 0
-}
-
-
-fn abs(a:u32, b:u32) -> u32{
-    if a > b {
-        a - b
-    } else {
-        b - a
-    }
 }
 
 fn curv <T, S>(image: &RgbaImage, y_axis: T, x_axis: S, steps: (usize, usize)) -> (Vec<Point>, Point) 
@@ -137,28 +125,7 @@ fn extract_edge_points(image: &RgbaImage, steps: (usize, usize)) -> Vec<Point> {
     points
 }
 
-/// 判断像素是否属于边缘（简单示例）
-// fn is_edge_pixel(image: &RgbaImage, rec: (u32, u32), point: (u32, u32)) -> bool {
-//     let is_alph = |p: (u32, u32)| image.get_pixel(p.0, p.1)[3] > 0 ;
-//     if is_alph(point) {
-//         let (x, y) = point;
-//         let (width, height) = rec;
-//         if x == 0 || y == 0 || x == width - 1 || y == height - 1 {
-//             return true
-//         }
-
-//         let neighbors = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)];
-
-//         if neighbors.iter().any(|&p| !is_alph(p)) {
-//             return true;
-//         }
-//     }
-
-//     false
-// }
-
-/// Step 2: 使用 Andrew 算法构造凸包
-fn andrew_algorithm(points: &[Point]) -> Vec<Point> {
+fn _andrew_algorithm(points: &[Point]) -> Vec<Point> {
     // 按 x 坐标排序，如果 x 相等按 y 排序
     let mut sorted_points = points.to_vec();
     
@@ -173,7 +140,7 @@ fn andrew_algorithm(points: &[Point]) -> Vec<Point> {
     // 构造下凸包
     let mut lower = Vec::new();
     for &p in &sorted_points {
-        if lower.len() >= 2 && !is_ccw(lower[lower.len() - 2], lower[lower.len() - 1], p, true) {
+        if lower.len() >= 2 && !_is_ccw(lower[lower.len() - 2], lower[lower.len() - 1], p, true) {
             lower.pop();
         }
         lower.push(p);
@@ -181,7 +148,7 @@ fn andrew_algorithm(points: &[Point]) -> Vec<Point> {
     // 构造上凸包
     let mut upper = Vec::new();
     for &p in sorted_points.iter().rev() {
-        if upper.len() >= 2 && is_ccw(upper[upper.len() - 2], upper[upper.len() - 1], p, false) {
+        if upper.len() >= 2 && _is_ccw(upper[upper.len() - 2], upper[upper.len() - 1], p, false) {
             upper.pop();
         }
         upper.push(p);
@@ -196,7 +163,7 @@ fn andrew_algorithm(points: &[Point]) -> Vec<Point> {
 }
 
 /// 判断三点是否构成逆时针方向
-fn is_ccw(p1: Point, p2: Point, p3: Point, rev: bool) -> bool {
+fn _is_ccw(p1: Point, p2: Point, p3: Point, rev: bool) -> bool {
     let (x1, y1) = p1;
     let (x2, y2) = p2;
     let (x3, y3) = p3;
@@ -246,7 +213,7 @@ fn is_ccw(p1: Point, p2: Point, p3: Point, rev: bool) -> bool {
 // }
 
 // Function to mask and crop image based on a polygon
-fn crop_to_polygon(image: &RgbaImage, polygon: &[(u32, u32)]) -> RgbaImage {
+fn _crop_to_polygon(image: &RgbaImage, polygon: &[(u32, u32)]) -> RgbaImage {
     let (width, height) = image.dimensions();
     let mut output = RgbaImage::new(width, height);
 
@@ -256,23 +223,12 @@ fn crop_to_polygon(image: &RgbaImage, polygon: &[(u32, u32)]) -> RgbaImage {
         let px = image::Rgba([255, 255, 255, 255]);
         output.put_pixel(x, y, px);
     }
-    // output.put_pixel(x, y, image::Rgba([0, 0, 0, 1]));
-
-    // for y in 0..height {
-    //     for x in 0..width {
-    //         if point_in_polygon(x, y, polygon) {
-    //             output.put_pixel(x, y, image.get_pixel(x, y).clone());
-    //         } else {
-    //             output.put_pixel(x, y, image::Rgba([0, 0, 0, 1]));
-    //         }
-    //     }
-    // }
 
     output
 }
 
 // Check if a point is inside a polygon
-fn point_in_polygon(x: u32, y: u32, polygon: &[(u32, u32)]) -> bool {
+fn _point_in_polygon(x: u32, y: u32, polygon: &[(u32, u32)]) -> bool {
     let mut inside = false;
     let mut j = polygon.len() - 1;
     for i in 0..polygon.len() {
@@ -286,89 +242,8 @@ fn point_in_polygon(x: u32, y: u32, polygon: &[(u32, u32)]) -> bool {
     inside
 }
 
-// Function to place images tightly on the canvas without overlap
-fn place_images_tightly(images: Vec<RgbaImage>) -> RgbaImage {
-    let mut canvas = RgbaImage::new(OUTPUT_WIDTH, OUTPUT_HEIGHT);
-    let mut occupied = vec![vec![false; OUTPUT_WIDTH as usize]; OUTPUT_HEIGHT as usize];
-
-    for image in images {
-        let (img_width, img_height) = image.dimensions();
-        let mut placed = false;
-
-        for y in 0..OUTPUT_HEIGHT - img_height {
-            for x in 0..OUTPUT_WIDTH - img_width {
-                if !placed {
-                    // Check if the space is free
-                    let mut can_place = true;
-                    for iy in 0..img_height {
-                        for ix in 0..img_width {
-                            if occupied[(y + iy) as usize][(x + ix) as usize] {
-                                can_place = false;
-                                break;
-                            }
-                        }
-                        if !can_place {
-                            break;
-                        }
-                    }
-
-                    // Place the image if space is free
-                    todo!()
-                    // if can_place {
-                    //     image::imageops::overlay(&mut canvas, &image, x, y);
-                    //     for iy in 0..img_height {
-                    //         for ix in 0..img_width {
-                    //             occupied[(y + iy) as usize][(x + ix) as usize] = true;
-                    //         }
-                    //     }
-                    //     placed = true;
-                    // }
-                }
-            }
-        }
-
-        if !placed {
-            eprintln!("Warning: Could not place an image on the canvas.");
-        }
-    }
-
-    canvas
-}
-
 
 type Point = (u32, u32);
-
-type Polygon = Vec<Point>;
-struct Icon{
-    width: u32, //图片宽度
-    height: u32,// 图片高度
-    polygon: Polygon,// 以图片左上角为原点的多边形顶点
-    scale: f32,// 图片缩放比例
-    angle: f32,// 图片旋转角度
-}
-struct Position {
-    x: u32,
-    y: u32,
-    Icon: Icon,
-}
-
-/// Pack icons tightly into a bin of given width and height.
-///
-/// Returns a vector of positions, where each position contains the x and y
-/// coordinates of the top-left corner of the icon, as well as the icon itself.
-///
-/// The icons are packed in a greedy manner, from left to right, from top to
-/// bottom. The packing is done such that the icons are packed tightly
-/// together, with no gaps between them.
-///
-/// If an icon does not fit in the remaining space of the bin, it is skipped.
-///
-/// # Example
-///
-/// 
-fn bin_packed(width: u32, height: u32, images: Vec<Icon>) -> Vec<Position> {
-    todo!()
-}
 
 pub fn load(data: &[u8], steps: (usize, usize)) -> Result<Vec<(u32, u32)>>{
     let img = image::load_from_memory(data)?;

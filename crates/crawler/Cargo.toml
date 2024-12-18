@@ -8,3 +8,6 @@ anyhow.workspace = true
 resvg.workspace = true
 usvg.workspace = true
 techwall.workspace = true
+base64 = "0.22.1"
+serde = {workspace = true, features = ["derive"]}
+serde_json.workspace = true
