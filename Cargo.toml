@@ -1,0 +1,20 @@
+[workspace]
+resolver = "2"
+members = [ "crates/crawler",
+  "crates/techwall"
+  , "crates/wasm"]
+
+[profile.release]
+panic = "unwind"
+
+[workspace.dependencies]
+js-sys = "0.3.69"
+wasm-bindgen = "0.2.93"
+anyhow = "1.0.91"
+image = "0.25.5"
+# rand = "0.8.5"
+# reqwest = "0.12.9"
+resvg = "0.44.0"
+usvg = "0.44.0"
+techwall = { path = "./crates/techwall" }
+crawler = { path = "./crates/crawler" }

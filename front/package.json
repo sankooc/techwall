@@ -1,0 +1,19 @@
+{
+  "name": "front",
+  "module": "src/index.tsx",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.2"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "conv": "file:../crates/wasm/pkg",
+    "matter-js": "^0.20.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}

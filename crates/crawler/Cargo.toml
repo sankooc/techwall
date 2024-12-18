@@ -1,0 +1,10 @@
+[package]
+name = "crawler"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow.workspace = true
+resvg.workspace = true
+usvg.workspace = true
+techwall.workspace = true

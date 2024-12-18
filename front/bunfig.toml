@@ -1,0 +1,5 @@
+smol = true
+name = "front"
+entry = "src/index.tsx"
+outdir = "dist"
+target = "browser"

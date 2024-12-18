@@ -1,0 +1,17 @@
+[package]
+name = "conv"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+js-sys.workspace = true
+wasm-bindgen.workspace = true
+techwall.workspace = true
+crawler.workspace = true
+
+[package.metadata.wasm-pack.profile.release]
+# wasm-opt = ['-O', '--enable-bulk-memory']
+wasm-opt = false
