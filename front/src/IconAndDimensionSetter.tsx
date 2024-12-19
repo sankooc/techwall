@@ -106,7 +106,7 @@ const IconAndDimensionSetter: React.FC<IconAndDimensionSetterProps> = ({
             onClick={() => toggleIcon(icon)}
             className={`aspect-square flex items-center justify-center p-1 border rounded transition-all duration-300 hover:bg-gray-50 ${
               iconMap[icon.name]
-                ? 'border-blue-500 shadow-sm bg-gray-400'  // Changed to bg-gray-200 for deeper background
+                ? 'border-blue-500 shadow-sm icon-wrapper selected'  // Changed to bg-gray-200 for deeper background
                 : 'border-gray-300'
             }`}
           >
