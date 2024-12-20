@@ -81,7 +81,7 @@ const IconAndDimensionSetter: React.FC<IconAndDimensionSetterProps> = ({
   }
 
   return (
-    <div className="max-w-full mx-auto p-4">
+    <div className="icon-and-dimension-setter rounded-lg p-4 shadow-sm">
       <div className="grid grid-cols-20 gap-1">
         {loadedIcons.slice(0, displayCount).map((icon) => (
           <button

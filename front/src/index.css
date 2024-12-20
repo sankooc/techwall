@@ -36,7 +36,7 @@ body {
   min-height: 100vh;
   /* background-color: aquamarine; */
   display: flex;
-  align-items: center;
+  align-items: start;
   justify-content: center;
 }
 

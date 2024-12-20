@@ -28,11 +28,7 @@ const App = () => {
         })
     }, []);
     
-    return (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            {Page}
-        </div>
-    );
+    return Page;
 };
 
 export default App;
