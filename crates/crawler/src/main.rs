@@ -1,4 +1,4 @@
-use std::{fs::{self, File}, io::Write};
+use std::{fs::{self}, io::Write};
 
 use anyhow::{Ok, Result};
 use crawler::convert;
@@ -59,7 +59,7 @@ fn main() {
     "redis", "rust", "go", "python","ubuntu", "puppeteer", "php", "tensorflow",
     "android", "auth0", "apple", "aws", "apache", "arduino","azure", "ant-design", "angular",
     "babel", "bash", "bytedance", 
-    "c", "c-sharp","c-plusplus", "centos", "cypress", "css-3", "codepen", "coffeescript", "caffe2", "cassandra", "cordova", "cassandra", "cocoapods",
+    "c", "c-sharp","c-plusplus", "centos", "cypress", "css-3", "codepen", "coffeescript", "caffe2", "cordova", "cassandra", "cocoapods",
     "d3","django", "deno", "datadog", "dart", "dropbox", "docker", "dojo", "dotnet", "discord","drone",
     "express", "elm", "eclipse","etcd","erlang", "ember", "es6", "esbuild", "electron",
     "flickr", "fabric", "ffmpeg-icon",
@@ -76,7 +76,7 @@ fn main() {
     "react", "redhat", "ruby",
     "snyk", "socket.io", "swift","sencha", "selenium",
     "typescript", "trello", "tomcat", "tiktok",
-    "ubuntu", "vue", "vultr", "v8", "webpack",
+    "ubuntu", "vue", "vultr", "vim",  "v8", "webpack",
     "zhihu",
     "kafka","kubernetes", "kong", "koa", "kibana",
     "yarn", "yeoman"];

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Box, { BoxMethods } from './box';
 import { Frame, Meta } from './common';
 import IconAndDimensionSetter from './IconAndDimensionSetter';
+import CanvasControls from './Controller';
 
 interface LayoutProps {
   metaList: Meta[];
@@ -32,8 +33,14 @@ const Layout: React.FC<LayoutProps> = ({ metaList, frames }) => {
   };
   const handleTakeScreenshot = () => {
     if (boxRef.current) {
-      const imageData = boxRef.current.takeScreenshot();
-      // 处理截图数据...
+      const dataurl = boxRef.current.takeScreenshot();
+      const link = document.createElement('a');
+      link.href = dataurl;
+      link.download = 'screenshot.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(dataurl);
     }
   };
   // useEffect(() => {
@@ -44,12 +51,9 @@ const Layout: React.FC<LayoutProps> = ({ metaList, frames }) => {
 
   return (
     <div className="container mx-auto p-4">
-      <IconAndDimensionSetter
-        metaList={metaList}
-        selectedIcons={selectedIcons}
-        onIconChange={handleIconChange}
-      />
-
+      <div className="flex">
+        <CanvasControls onSubmit={() => {}} onRearrange={() => {}} onCapture={handleTakeScreenshot} ></CanvasControls>
+      </div>
       <div className="mt-4 flex gap-4">
         {/* Left side - Box */}
         <div className="flex-1">
@@ -90,6 +94,12 @@ const Layout: React.FC<LayoutProps> = ({ metaList, frames }) => {
           </div>
         </div>
       </div>
+      
+      <IconAndDimensionSetter
+        metaList={metaList}
+        selectedIcons={selectedIcons}
+        onIconChange={handleIconChange}
+      />
     </div>
   );
 };
