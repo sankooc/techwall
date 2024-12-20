@@ -35,12 +35,12 @@ jobs:
         git config --global user.email "sankooc@163.com"
     - name: clean
       run: |
-        rm -rf dist
+        rm -rf docs
     - name: Download generated template
       uses: actions/download-artifact@v4
       with:
         name: template-output
-        path: dist
+        path: docs
     - name: Commit and push
       run: |
         git add .
