@@ -8,7 +8,7 @@ export class Meta {
     scale: number = 1;
     rotation: boolean = true;
     static url(item: Meta): string {
-        return '/resource/' + item.name + '.png';
+        return '/techwall/resource/' + item.name + '.png';
     }
 }
 

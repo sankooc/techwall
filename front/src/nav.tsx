@@ -9,10 +9,10 @@ const App = () => {
 
     const frames = [
         new Frame('def', "#f0f0f0", 0, 0),
-        new Frame('text', "/resource/bg/textile-bg.jpg", 0, 0)
+        new Frame('text', "/techwall/resource/bg/textile-bg.jpg", 0, 0)
     ];
     useEffect(() => {
-        fetch("/resource/meta").then((response) => {
+        fetch("/techwall/resource/meta").then((response) => {
             response.blob().then((blob) => {
                 const reader = new FileReader();
                 reader.onload = () => {
