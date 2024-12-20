@@ -1,7 +1,10 @@
+use std::{fs::{self, File}, io::Write};
+
 use anyhow::{Ok, Result};
 use crawler::convert;
+use flate2::Compression;
 use serde::Serialize;
-
+use flate2::write::GzEncoder;
 #[warn(dead_code)]
 fn get_path(name: &str) -> String {
     let home = std::env::home_dir().unwrap().display().to_string();
@@ -52,22 +55,46 @@ pub struct MetaData {
 fn main() {
     // let root = get_path("repo/techwall/icons");
     let target = get_path("repo/techwall/front/public/resource");
-    let list = ["mongodb", "vite", "java", "mega", "javascript", 
-    "android", "auth0", "apple", "aws", 
-    "babel", "bash", 
-    "c", "c-sharp","c-plusplus", "centos", "cypress", "css-3", "codepen",
-    "d3","django", "deno", "datadog", "dart", "dropbox", "docker", "dojo", "dotnet", "discord","dyndns",
-    "express", "elm", "eclipse","etcd","erlang", "ember", "es6", "esbuild", 
-    "flickr", "fabric",
-    "panda","pug",
-    "zenhub",
+    let list = ["mongodb", "vite", "java", "javascript", "jetbrains",
+    "redis", "rust", "go", "python","ubuntu", "puppeteer", "php", "tensorflow",
+    "android", "auth0", "apple", "aws", "apache", "arduino","azure", "ant-design", "angular",
+    "babel", "bash", "bytedance", 
+    "c", "c-sharp","c-plusplus", "centos", "cypress", "css-3", "codepen", "coffeescript", "caffe2", "cassandra", "cordova", "cassandra", "cocoapods",
+    "d3","django", "deno", "datadog", "dart", "dropbox", "docker", "dojo", "dotnet", "discord","drone",
+    "express", "elm", "eclipse","etcd","erlang", "ember", "es6", "esbuild", "electron",
+    "flickr", "fabric", "ffmpeg-icon",
+    "gitlab", "github","git", "gcc", "grafana", "gopher","gwt", "gnome",
+    "hadoop", "hbase", "html-5", "hexo", "heroku", "hugo", "hibernate",
+    "ieee", "ionic", "ios",
+    "jade", "jenkins", "jira",  "joomla","jekyll","julia", "jupyter",
+    "kde", "khan_academy",
+    "less","lua", "linux-tux","lodash","lucene",
+    "macOS", "mocha", "markdown", "maven","mesos",
+    "nginx", "nodejs", "npm", "nestjs", "nuxt",
+    "ocaml","opencv", "openstack", "openshift", "oracle",
+    "panda","pug", "phonegap", "postman", "pm2", "postgresql", "pytorch",
+    "react", "redhat", "ruby",
+    "snyk", "socket.io", "swift","sencha", "selenium",
+    "typescript", "trello", "tomcat", "tiktok",
+    "ubuntu", "vue", "vultr", "v8", "webpack",
+    "zhihu",
     "kafka","kubernetes", "kong", "koa", "kibana",
-    "rust", "go", "python", "puppeteer", "php", "tensorflow"];
+    "yarn", "yeoman"];
     // let list = ["javascript"];
     
     let mut meta_data = MetaData {
         items: Vec::new(),
     };
+    for ll in list {
+        
+        let root = get_path("repo/geticon/icons");
+        let path = format!("{}/{}.svg", root, ll);
+        if fs::exists(path).unwrap() {
+
+        } else {
+            panic!("icon not found: {}", ll);
+        }
+    }
     for ll in list {
         println!("parse: {}", ll);
         // build_resouce(ll);
@@ -87,14 +114,13 @@ fn main() {
         };
         meta_data.items.push(meta);
         std::fs::write(format!("{}/{}.png", target, ll), &content).unwrap();
-        // let base64_data = general_purpose::STANDARD.encode(&content);
-        // println!("base: {}", base64_data);
-
-
-
-        // std::fs::write(format!("{}/{}/icon_shadow.png", root, ll), &_content).unwrap();
     }
     
     let json_conten = serde_json::to_string(&meta_data).unwrap();
-    std::fs::write(format!("{}/meta.json", target), json_conten).unwrap();
+    // let file = File::create(format!("{}/meta", target)).unwrap();
+    let data = json_conten.as_bytes();
+    let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
+    encoder.write_all(data).unwrap();
+    let content = encoder.finish().unwrap();
+    std::fs::write(format!("{}/meta", target), content).unwrap();
 }

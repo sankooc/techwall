@@ -5,19 +5,13 @@ import { IoIosArrowDown } from 'react-icons/io'; // or any other icon you prefer
 interface IconAndDimensionSetterProps {
   metaList: Meta[];
   selectedIcons: Meta[];
-  width: number;
-  height: number;
   onIconChange: (icons: Meta[]) => void;
-  onDimensionChange: (width: number, height: number) => void;
 }
 
 const IconAndDimensionSetter: React.FC<IconAndDimensionSetterProps> = ({
   metaList,
   selectedIcons: initialSelectedIcons,
-  width,
-  height,
   onIconChange,
-  onDimensionChange
 }) => {
   const [loadedIcons, setLoadedIcons] = useState<Meta[]>([]);
   const [displayCount, setDisplayCount] = useState<number>(20);
@@ -81,17 +75,6 @@ const IconAndDimensionSetter: React.FC<IconAndDimensionSetterProps> = ({
     setDisplayCount(prev => prev + 20);
   }, []);
 
-  const handleWidthChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newWidth = parseInt(e.target.value, 10);
-    onDimensionChange(newWidth, height);
-  }, [height, onDimensionChange]);
-
-  const handleHeightChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newHeight = parseInt(e.target.value, 10);
-    onDimensionChange(width, newHeight);
-  }, [width, onDimensionChange]);
-
-
   const iconMap = {};
   for (const icon of selectedIcons){
     iconMap[icon.name] = 1;
@@ -131,28 +114,6 @@ const IconAndDimensionSetter: React.FC<IconAndDimensionSetterProps> = ({
           Load More
         </button>
       )}
-      <div className="mt-8 flex justify-center space-x-4">
-        <label className="flex items-center">
-          <span className="mr-2">Width:</span>
-          <input
-            type="number"
-            value={width}
-            onChange={handleWidthChange}
-            min="1"
-            className="w-20 px-2 py-1 border rounded-md"
-          />
-        </label>
-        <label className="flex items-center">
-          <span className="mr-2">Height:</span>
-          <input
-            type="number"
-            value={height}
-            onChange={handleHeightChange}
-            min="1"
-            className="w-20 px-2 py-1 border rounded-md"
-          />
-        </label>
-      </div>
     </div>
   );
 };

@@ -45,12 +45,9 @@ const Layout: React.FC<LayoutProps> = ({ metaList, frames }) => {
   return (
     <div className="container mx-auto p-4">
       <IconAndDimensionSetter
-        width={boxWidth}
-        height={boxHeight}
         metaList={metaList}
         selectedIcons={selectedIcons}
         onIconChange={handleIconChange}
-        onDimensionChange={handleDimensionChange}
       />
 
       <div className="mt-4 flex gap-4">
