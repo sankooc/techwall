@@ -63,8 +63,9 @@ const CanvasControls: React.FC<CanvasControlsProps> = ({ onSubmit, onRearrange, 
           />
         </label>
         <button
+          disabled
           onClick={handleSubmit}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="disabled inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
           <IoMdCheckmark className="mr-2" /> Submit
         </button>

@@ -12,18 +12,16 @@ interface LayoutProps {
   background: Frame;
 }
 
+class IconItem {
+  constructor(public item: Meta, public body: Matter.Body, public inertia: number) { }
+}
+
 const convert = (item: Meta): Body => {
   const { name, width, height, polygon } = item;
   return Matter.Bodies.fromVertices(width, height, [polygon], {
-    // inertia: Infinity,
     friction: 0.8,
     label: name,
-
     render: {
-      // visible: true,
-      // lineWidth: 2,
-      // strokeStyle: '#2c3e50',
-      // fillStyle: 'transparent',
       sprite: {
         texture: Meta.url(item),
         xScale: .9,
@@ -35,16 +33,19 @@ const convert = (item: Meta): Body => {
 export interface BoxMethods {
   updatePolygons: (items: Meta[]) => void;
   takeScreenshot: () => string;
+  rearrage: () => void;
+  setBackgroundImage: (src: string) => void;
 }
 
 
 const { Engine, Render, Runner, Bodies, Composite, Events, Mouse, MouseConstraint } = Matter;
 const MatterScene = forwardRef<BoxMethods, LayoutProps>((props, ref) => {
-  const { items, width, height, background } = props;
+  const { width, height, background } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const itemMap = useRef<Map<string, Body>>(new Map());
+  const itemMap = useRef<Map<string, IconItem>>(new Map());
+  // const originalInertiaMap = useRef(new Map<string, number>());
   const engineRef = useRef<Matter.Engine>(Engine.create());
-  const originalInertiaMap = useRef(new Map<string, number>());
+  const renderRef = useRef<Matter.Render>();
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
@@ -57,25 +58,9 @@ const MatterScene = forwardRef<BoxMethods, LayoutProps>((props, ref) => {
     return canvasRef.current.toDataURL('image/png');
   }, []);
 
-  const deleteItem = (world: Matter.World, body: Matter.Body) => {
-    Composite.remove(world, body);
-    itemMap.current.delete(body.label);
-    originalInertiaMap.current.delete(body.id.toString());
-    
-  }
-  const updatePolygons = (newItems: Meta[]) => {
-    const engine = engineRef.current;
-    const { world } = engine;
-    const _map = new Set<String>();
-    newItems.forEach(item => {
-      _map.add(item.name);
-    });
-    itemMap.current.forEach((body, name) => {
-      if (!_map.has(name)) {
-        deleteItem(world, body);
-      }
-    });
-    newItems.forEach(item => {
+
+  const batchUpdate = (world: Matter.World, items: Meta[]) => {
+    items.forEach(item => {
       const { name } = item;
       if (itemMap.current.get(name)) {
         return;
@@ -84,14 +69,83 @@ const MatterScene = forwardRef<BoxMethods, LayoutProps>((props, ref) => {
       const x = Math.random() * (width - 100) + 50;
       Body.setPosition(body, { x, y: 0 });
       Matter.Composite.add(world, body);
-      itemMap.current.set(name, body);
-      originalInertiaMap.current.set(body.id.toString(), body.inertia);
+      itemMap.current.set(name, new IconItem(item, body, body.inertia));
     });
   }
+
+  const deleteItem = (world: Matter.World, body: Matter.Body) => {
+    Composite.remove(world, body);
+    itemMap.current.delete(body.label);
+  }
+  const updatePolygons = (newItems: Meta[]) => {
+    const engine = engineRef.current;
+    const { world } = engine;
+    const _map = new Set<String>();
+    newItems.forEach(item => {
+      _map.add(item.name);
+    });
+    itemMap.current.forEach((it, name) => {
+      if (!_map.has(name)) {
+        deleteItem(world, it.body);
+      }
+    });
+    batchUpdate(world, newItems);
+  }
+  const addWall = (world: Matter.World) => {
+    const block_width = 100;
+    const block_pad = block_width / 2 - 1;
+    const blockOption = { isStatic: true, render: { visible: false } };
+    {
+      const ground = Bodies.rectangle(width / 2, height + block_pad, width, block_width, blockOption);
+      Composite.add(world, ground);
+    }
+
+    {
+      const ground = Bodies.rectangle(-block_pad, height / 2, block_width, height, blockOption);
+      Composite.add(world, ground);
+    }
+
+    {
+      const ground = Bodies.rectangle(width + block_pad, height / 2, block_width - 1, height, blockOption);
+      Composite.add(world, ground);
+    }
+
+  }
+  const rearrage = () => {
+    const engine = engineRef.current;
+    const { world } = engine;
+    const items = itemMap.current.values();
+    const _items: Meta[] = [];
+    for (const item of items) {
+      deleteItem(world, item.body);
+      _items.push(item.item);
+    }
+    itemMap.current.clear();
+
+    const units = splitArray(_items);
+    let i = 0;
+    let ite = setInterval(() => {
+      if (i >= units.length) {
+        clearInterval(ite);
+      }
+      const polygons = units[i];
+      i++;
+      batchUpdate(world, polygons);
+    }, 800)
+  }
+  const setBackgroundImage = (src: string) => {
+    if (renderRef.current) {
+      renderRef.current.options.background = `url(${src})`;
+    }
+  };
   useImperativeHandle(ref, () => ({
     updatePolygons,
-    takeScreenshot
-  }), [updatePolygons, takeScreenshot]);
+    takeScreenshot,
+    rearrage,
+    setBackgroundImage,
+  }), [updatePolygons, takeScreenshot, rearrage]);
+
+
   const draw = () => {
     // 创建物理引擎
     const engine = engineRef.current;
@@ -105,68 +159,16 @@ const MatterScene = forwardRef<BoxMethods, LayoutProps>((props, ref) => {
         width,
         height,
         wireframes: false,
-        background: background.background,
-        // background: '#f0f0f0'
-        // background: '/resource/bg/textile-bg.jpg'
+        // background: '#f0f0f0',
+        background: 'transparent'
       }
     });
+    renderRef.current = render;
     Render.run(render);
 
     const runner = Runner.create();
     Runner.run(runner, engine);
-    const block_width = 100;
-    const block_pad = block_width / 2 - 1;
-    const blockOption = { isStatic: true, render: { visible: false } };
-    const ready = () => {
-      {
-        const ground = Bodies.rectangle(width / 2, height + block_pad, width, block_width, blockOption);
-        Composite.add(world, ground);
-      }
-
-      {
-        const ground = Bodies.rectangle(-block_pad, height / 2, block_width, height, blockOption);
-        Composite.add(world, ground);
-      }
-
-      {
-        const ground = Bodies.rectangle(width + block_pad, height / 2, block_width - 1, height, blockOption);
-        Composite.add(world, ground);
-      }
-
-    }
-    // const units = splitArray(items);
-    // const imageLoad = (item: Meta): Promise<Meta> => {
-    //   const image = new Image();
-    //   image.src = '/resource/' + item.name + '.png';
-    //   return new Promise((resolve, reject) => {
-    //     image.onload = () => { resolve(item) };
-    //     image.onerror = reject;
-    //   });
-    // }
-    ready();
-    // const pngDrop = (polygon: Meta[]) => {
-    //   if (!polygon) return;
-    //   const images = polygon.map((item: Meta) => imageLoad(item));
-    //   Promise.allSettled(images).then((res) => {
-    //     const rect: Body[] = res.filter((result) => result.status === 'fulfilled').map(rs => convert(rs.value));
-    //     rect.forEach((polygon) => {
-    //       const x = Math.random() * (width - 100) + 50;
-    //       Body.setPosition(polygon, { x, y: 0 });
-    //     });
-    //     Composite.add(world, rect)
-    //   })
-    // }
-    // let i = 0;
-    // let ite = setInterval(() => {
-    //   if (i >= units.length) {
-    //     clearInterval(ite);
-    //   }
-    //   const polygons = units[i];
-    //   i++;
-    //   pngDrop(polygons);
-    // }, 1000)
-
-    // 添加鼠标控制
+    addWall(world);
     const mouse = Mouse.create(render.canvas);
     const mouseConstraint = MouseConstraint.create(engine, {
       mouse: mouse,
@@ -226,7 +228,7 @@ const MatterScene = forwardRef<BoxMethods, LayoutProps>((props, ref) => {
   const handleDelete = useCallback(() => {
     if (contextMenu?.body) {
       Composite.remove(engineRef.current.world, contextMenu.body);
-      itemMap.current.delete(contextMenu.body.label);
+      deleteItem(engineRef.current.world, contextMenu.body);
     }
     setContextMenu(null);
   }, [contextMenu]);
@@ -234,14 +236,13 @@ const MatterScene = forwardRef<BoxMethods, LayoutProps>((props, ref) => {
   const handleRotate = useCallback(() => {
     if (contextMenu?.body) {
       if (contextMenu.body.inertia == Infinity) {
-        const originalInertia = originalInertiaMap.current.get(contextMenu.body.id.toString());
-        if (originalInertia !== undefined) {
-          Body.set(contextMenu.body, "inertia", originalInertia);
+        let cur = itemMap.current.get(contextMenu.body.label);
+        if (cur) {
+          Body.set(contextMenu.body, "inertia", cur.inertia);
         }
       } else {
         Body.set(contextMenu.body, 'angle', 0);
         Body.set(contextMenu.body, "inertia", Infinity);
-        // Body.setAngularVelocity(contextMenu.body, 0);
       }
     }
     setContextMenu(null);
@@ -253,6 +254,9 @@ const MatterScene = forwardRef<BoxMethods, LayoutProps>((props, ref) => {
     return () => window.removeEventListener('click', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    setBackgroundImage(background.background);
+  }, [background.background])
   return <div className="relative">
     <canvas
       ref={canvasRef}

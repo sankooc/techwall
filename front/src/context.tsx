@@ -19,14 +19,14 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, onClose, onDelet
         className="w-full px-4 py-1 text-left hover:bg-gray-100"
         onClick={onRotate}
       >
-        旋转/固定
+        Pin
       </button>
-      <button 
+      {/* <button 
         className="w-full px-4 py-1 text-left hover:bg-gray-100 text-red-600"
         onClick={onDelete}
       >
-        删除
-      </button>
+        Delete
+      </button> */}
     </div>
   );
 };
