@@ -31,11 +31,6 @@ const Layout: React.FC<LayoutProps> = ({ metaList, frames }) => {
       boxRef.current.rearrage();
     }
   };
-
-  const handleDimensionChange = (width: number, height: number) => {
-    // setBoxWidth(width);
-    // setBoxHeight(height);
-  };
   const handleTakeScreenshot = () => {
     if (boxRef.current) {
       const pro = boxRef.current.takeScreenshot();

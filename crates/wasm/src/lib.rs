@@ -38,7 +38,7 @@ impl From<(u32, u32)> for Point {
 
 
 impl SVGResult {
-    fn new(data: Vec<u8>, rect: (u32, u32), polygon: Vec<(u32, u32)>) -> SVGResult {
+    fn _new(data: Vec<u8>, rect: (u32, u32), polygon: Vec<(u32, u32)>) -> SVGResult {
         SVGResult { data, rect, polygon }
     }
 }
@@ -63,15 +63,15 @@ impl SVGResult {
 
 }
 
-#[wasm_bindgen]
-pub fn load_svg (s: &Uint8Array) -> SVGResult {
-    let data = s.to_vec();
-    let pix = crawler::convert::convert_svg_to_png(data).unwrap();
+// #[wasm_bindgen]
+// pub fn load_svg (s: &Uint8Array) -> SVGResult {
+//     let data = s.to_vec();
+//     let pix = crawler::convert::convert_svg_to_png(data).unwrap();
     
-    let w = pix.width() / 10;
-    let h = pix.height() / 10;
-    let content = pix.encode_png().unwrap();
-    let polygon = techwall::png::load(&content, (w as usize,h as usize)).unwrap();
+//     let w = pix.width() / 10;
+//     let h = pix.height() / 10;
+//     let content = pix.encode_png().unwrap();
+//     let polygon = techwall::png::load(&content, (w as usize,h as usize)).unwrap();
 
-    SVGResult::new(content, (w, h), polygon)
-}
+//     SVGResult::new(content, (w, h), polygon)
+// }

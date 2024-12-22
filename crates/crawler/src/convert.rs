@@ -15,7 +15,7 @@ fn get_scale(size: Size) -> (f32, f32) {
     (ff,ff)
 }
 
-pub fn convert_svg_to_png(data: Vec<u8>) -> Result<Pixmap> {
+pub fn convert_svg_to_png(data: Vec<u8>) -> Result<(Pixmap, f32)> {
     let svg_data = String::from_utf8(data)?;
     let mut opt = usvg::Options::default();
     let mut fdb = fontdb::Database::new();
@@ -27,12 +27,13 @@ pub fn convert_svg_to_png(data: Vec<u8>) -> Result<Pixmap> {
     let original_width = svg_size.width();
     let original_height = svg_size.height();
 
-    println!("original_width: {}, original_height: {}", original_width, original_height);
+    // println!("original_width: {}, original_height: {}", original_width, original_height);
     let scale = get_scale(svg_size);
+    // let scale = (1f32, 1f32);
 
     let target_width = (original_width * scale.0) as u32;
     let target_height = (original_height * scale.1) as u32;
-    println!("target_width: {}, target_height: {}", target_width, target_height);
+    // println!("target_width: {}, target_height: {}", target_width, target_height);
     let mut pixmap = Pixmap::new(target_width, target_height).ok_or("incorrect size").unwrap();
     
     let transform = Transform::from_scale(scale.0, scale.1);
@@ -43,5 +44,5 @@ pub fn convert_svg_to_png(data: Vec<u8>) -> Result<Pixmap> {
         transform,
         &mut pixmap.as_mut(),
     );
-    Ok(pixmap)
+    Ok((pixmap, scale.0))
 }

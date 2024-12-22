@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Meta } from './common';
 import { IoIosArrowDown } from 'react-icons/io'; // or any other icon you prefer
+import { IoMdAdd } from 'react-icons/io'; // 导入加号图标
 
 interface IconAndDimensionSetterProps {
   metaList: Meta[];
@@ -18,38 +19,17 @@ const IconAndDimensionSetter: React.FC<IconAndDimensionSetterProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectedIcons, setSelectedIcons] = useState<Meta[]>(initialSelectedIcons);
 
-  const loadImage = useCallback((meta: Meta): Promise<Meta> => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.src = Meta.url(meta);
-      
-      const timer = setTimeout(() => {
-        reject(new Error('Image load timed out'));
-      }, 5000);
-
-      img.onload = () => {
-        clearTimeout(timer);
-        resolve(meta);
-      };
-
-      img.onerror = () => {
-        clearTimeout(timer);
-        reject(new Error('Image load failed'));
-      };
-    });
-  }, []);
-
   const loadIcons = useCallback(async () => {
     setIsLoading(true);
     const newIcons = metaList.slice(loadedIcons.length, loadedIcons.length + 20);
-    const iconPromises = newIcons.map(loadImage);
+    const iconPromises = newIcons.map(Meta.load);
     const loadedResults = await Promise.allSettled(iconPromises);
     const newLoadedIcons = loadedResults
       .filter((result): result is PromiseFulfilledResult<Meta> => result.status === 'fulfilled')
       .map(result => result.value);
     setLoadedIcons(prevIcons => [...prevIcons, ...newLoadedIcons]);
     setIsLoading(false);
-  }, [metaList, loadImage, loadedIcons.length]);
+  }, [metaList, Meta.load, loadedIcons.length]);
 
   useEffect(() => {
     if (loadedIcons.length < displayCount) {
@@ -64,7 +44,7 @@ const IconAndDimensionSetter: React.FC<IconAndDimensionSetterProps> = ({
       if (index !== -1) {
         newSelectedIcons = prevIcons.filter(icon => icon.name !== meta.name);
       } else {
-        newSelectedIcons = [...prevIcons, { ...meta, scale: 1, rotation: false }];
+        newSelectedIcons = [...prevIcons, { ...meta, rotation: false }];
       }
       onIconChange(newSelectedIcons);
       return newSelectedIcons;
@@ -95,7 +75,7 @@ const IconAndDimensionSetter: React.FC<IconAndDimensionSetterProps> = ({
           >
             <div className="w-full h-full relative">
               <img
-                src={Meta.url(icon)}
+                src={Meta.dataURL(icon)}
                 alt={icon.name}
                 className="absolute inset-0 w-full h-full object-contain"
               />
@@ -107,12 +87,13 @@ const IconAndDimensionSetter: React.FC<IconAndDimensionSetterProps> = ({
         <p className="text-center mt-4 text-gray-600">Loading...</p>
       )}
       {!isLoading && displayCount < metaList.length && (
-        <button
-          onClick={loadMore}
-          className="mt-6 mx-auto block px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-300"
-        >
-          Load More
-        </button>
+        <button 
+        onClick={loadMore} 
+        className="mt-6 mx-auto block px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-300 flex items-center gap-2"
+      >
+        <IoMdAdd className="text-xl"/>
+        <span>more icon</span>
+      </button>
       )}
     </div>
   );

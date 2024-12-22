@@ -15,17 +15,17 @@ interface LayoutProps {
 class IconItem {
   constructor(public item: Meta, public body: Matter.Body, public inertia: number) { }
 }
-
 const convert = (item: Meta): Body => {
-  const { name, width, height, polygon } = item;
+  const { name, width, height, polygon, scale } = item;
+  console.log(width, height, scale);
   return Matter.Bodies.fromVertices(width, height, [polygon], {
     friction: 0.8,
     label: name,
     render: {
       sprite: {
-        texture: Meta.url(item),
-        xScale: .9,
-        yScale: .9
+        texture: Meta.dataURL(item),
+        xScale: 0.9 * 1,
+        yScale: 0.9 * 1
       },
     }
   });
@@ -51,6 +51,9 @@ const MatterScene = forwardRef<BoxMethods, LayoutProps>((props, ref) => {
     y: number;
     body?: Matter.Body;
   } | null>(null);
+  const [showScaleInput, setShowScaleInput] = useState(false);
+  const [scaleValue, setScaleValue] = useState('1');
+  const selectedBodyRef = useRef<Matter.Body | null>(null);
   // console.log('rendering', background.background);
 
   const takeScreenshot = useCallback((): Promise<string> => {
@@ -102,6 +105,7 @@ const MatterScene = forwardRef<BoxMethods, LayoutProps>((props, ref) => {
         deleteItem(world, it.body);
       }
     });
+    console.log(newItems);
     batchUpdate(world, newItems);
   }
   const addWall = (world: Matter.World) => {
@@ -261,6 +265,33 @@ const MatterScene = forwardRef<BoxMethods, LayoutProps>((props, ref) => {
     setContextMenu(null);
   }, [contextMenu]);
 
+  const handleScaleClick = useCallback(() => {
+    if (contextMenu?.body) {
+      selectedBodyRef.current = contextMenu.body;
+      setShowScaleInput(true);
+      setContextMenu(null);
+    }
+  }, [contextMenu]);
+
+  const handleScaleSubmit = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    const scale = parseFloat(scaleValue);
+    if (scale >= 1 && scale <= 3 && selectedBodyRef.current) {
+      const body = selectedBodyRef.current;
+      // 更新物理体的大小
+      Matter.Body.scale(body, scale, scale);
+      
+      // 更新精灵的缩放
+      if (body.render.sprite) {
+        body.render.sprite.xScale = 0.9 * scale;
+        body.render.sprite.yScale = 0.9 * scale;
+      }
+      
+      setShowScaleInput(false);
+      setScaleValue('1');
+    }
+  }, [scaleValue]);
+
   useEffect(() => {
     const handleClickOutside = () => setContextMenu(null);
     window.addEventListener('click', handleClickOutside);
@@ -284,7 +315,41 @@ const MatterScene = forwardRef<BoxMethods, LayoutProps>((props, ref) => {
         onClose={() => setContextMenu(null)}
         onDelete={handleDelete}
         onRotate={handleRotate}
+        onScale={handleScaleClick}
       />
+    )}
+    {showScaleInput && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <form onSubmit={handleScaleSubmit} className="bg-white p-4 rounded-lg">
+          <label className="block mb-2">
+            Scale (1-3):
+            <input
+              type="number"
+              min="1"
+              max="3"
+              step="0.1"
+              value={scaleValue}
+              onChange={(e) => setScaleValue(e.target.value)}
+              className="ml-2 border rounded px-2 py-1"
+            />
+          </label>
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setShowScaleInput(false)}
+              className="px-4 py-2 bg-gray-200 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-500 text-white rounded"
+            >
+              Apply
+            </button>
+          </div>
+        </form>
+      </div>
     )}
   </div>;
 });

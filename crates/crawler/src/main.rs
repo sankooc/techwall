@@ -33,6 +33,7 @@ pub struct Meta {
     name: String,
     width: u32,
     height: u32,
+    scale: f32,
     polygon: Vec<Point>,
 }
 
@@ -99,7 +100,7 @@ fn main() {
         println!("parse: {}", ll);
         // build_resouce(ll);
         let data = get_svg_bytes(ll).unwrap();
-        let pix = convert::convert_svg_to_png(data).unwrap();
+        let (pix, scale) = convert::convert_svg_to_png(data).unwrap();
         let w = pix.width() / 10;
         let h = pix.height() / 10;
         let content = pix.encode_png().unwrap();
@@ -109,6 +110,7 @@ fn main() {
         let meta = Meta {
             width: pix.width(),
             height: pix.height(),
+            scale,
             name: ll.to_string(),
             polygon,
         };
