@@ -32,7 +32,7 @@ const convert = (item: Meta): Body => {
 }
 export interface BoxMethods {
   updatePolygons: (items: Meta[]) => void;
-  takeScreenshot: () => string;
+  takeScreenshot: () => Promise<string>;
   rearrage: () => void;
   setBackgroundImage: (src: string) => void;
 }
@@ -53,10 +53,23 @@ const MatterScene = forwardRef<BoxMethods, LayoutProps>((props, ref) => {
   } | null>(null);
   // console.log('rendering', background.background);
 
-  const takeScreenshot = useCallback(() => {
-    if (!canvasRef.current) return '';
-    return canvasRef.current.toDataURL('image/png');
-  }, []);
+  const takeScreenshot = useCallback((): Promise<string> => {
+    if (!canvasRef.current) return Promise.reject();
+    if (/^#([A-Fa-f0-9]{6})$/.test(background.background) ){
+      return Promise.resolve(canvasRef.current.toDataURL('image/png'));
+    }
+    const frontImage = new Image();
+    frontImage.src = canvasRef.current.toDataURL('image/png');
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = background.background;
+    return new Promise(resolve => img.onload = resolve).then(() => {
+      const ctx = canvasRef.current.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvasRef.current.width, canvasRef.current.height);
+      ctx.drawImage(frontImage, 0,0, canvasRef.current.width, canvasRef.current.height);
+      return canvasRef.current.toDataURL('image/png');
+    });
+  }, [background]);
 
 
   const batchUpdate = (world: Matter.World, items: Meta[]) => {

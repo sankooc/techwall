@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import Box, { BoxMethods } from './box';
+import Box, { BoxMethods } from './Wall';
 import { Frame, Meta } from './common';
-import IconAndDimensionSetter from './IconAndDimensionSetter';
+import IconAndDimensionSetter from './IconSetter';
 import CanvasControls from './Controller';
 
 interface LayoutProps {
@@ -38,28 +38,23 @@ const Layout: React.FC<LayoutProps> = ({ metaList, frames }) => {
   };
   const handleTakeScreenshot = () => {
     if (boxRef.current) {
-      const dataurl = boxRef.current.takeScreenshot();
-      const link = document.createElement('a');
-      link.href = dataurl;
-      link.download = 'screenshot.png';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(dataurl);
+      const pro = boxRef.current.takeScreenshot();
+      pro.then((dataurl: string) => {
+        const link = document.createElement('a');
+        link.href = dataurl;
+        link.download = 'screenshot.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(dataurl);
+      })
     }
-  };
-
-  const setBG = (frame: Frame) => {
-    // if (boxRef.current) {
-    //   boxRef.current.setBackgroundImage(frame.background);
-    // }
-    setSelectedBackground(frame);
   };
 
   return (
     <div className="container mx-auto p-4">
       <div className="flex">
-        <CanvasControls onSubmit={() => {}} onRearrange={onRearrange} onCapture={handleTakeScreenshot} ></CanvasControls>
+        <CanvasControls onSubmit={() => { }} onRearrange={onRearrange} onCapture={handleTakeScreenshot} ></CanvasControls>
       </div>
       <div className="mt-4 flex gap-4">
         {/* Left side - Box */}
@@ -81,7 +76,7 @@ const Layout: React.FC<LayoutProps> = ({ metaList, frames }) => {
             {frames.map((frame) => (
               <button
                 key={frame.background}  // Changed from frame.name
-                onClick={() => setBG(frame)}
+                onClick={() => setSelectedBackground(frame)}
                 className={`p-2 border rounded-lg flex items-center ${selectedBackground.background === frame.background  // Changed from name comparison
                   ? 'border-blue-500 bg-gray-400'
                   : 'border-gray-300'
@@ -103,11 +98,11 @@ const Layout: React.FC<LayoutProps> = ({ metaList, frames }) => {
       </div>
       <div className="border mt-4">
 
-      <IconAndDimensionSetter
-        metaList={metaList}
-        selectedIcons={selectedIcons}
-        onIconChange={handleIconChange}
-      />
+        <IconAndDimensionSetter
+          metaList={metaList}
+          selectedIcons={selectedIcons}
+          onIconChange={handleIconChange}
+        />
       </div>
     </div>
   );

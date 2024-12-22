@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import Box from './box.tsx';
+import Box from './Wall.tsx';
 import Layout from './layout.tsx';
 import { Frame } from './common.ts';
 import { decompressSync } from 'fflate';
