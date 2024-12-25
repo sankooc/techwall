@@ -5,12 +5,11 @@ interface ContextMenuProps {
   x: number;
   y: number;
   onClose: () => void;
-  onDelete?: () => void;
   onRotate?: () => void;
   onScale?: () => void;
 }
 
-export const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, onClose, onDelete, onRotate, onScale }) => {
+export const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, onClose, onRotate, onScale }) => {
   return (
     <div 
       className="fixed bg-white shadow-lg rounded-lg py-2 min-w-[120px] z-50"
