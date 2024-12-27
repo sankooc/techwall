@@ -21,7 +21,6 @@ class Layer {
     return [width, height];
   }
   rearrage(period: number = 800) {
-    const { world } = this.engine;
     const items = this.itemMap.values();
     const _items: Meta[] = [];
     for (const item of items) {
