@@ -2,7 +2,7 @@ import { forwardRef, MutableRefObject, useCallback, useEffect, useImperativeHand
 import Matter, { Body, Vector } from 'matter-js';
 import { splitArray } from './util';
 import { Frame, Meta } from "./common";
-import { ContextMenu } from './context';
+import { ContextMenu } from './AppContext';
 
 interface LayoutProps {
   width: number;

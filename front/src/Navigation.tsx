@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import Layout from './layout.tsx';
+import Layout from './Layout.tsx';
 import { Frame } from './common.ts';
 import { decompressSync } from 'fflate';
 const App = () => {
