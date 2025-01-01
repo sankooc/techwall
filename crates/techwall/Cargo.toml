@@ -10,3 +10,5 @@ crate-type = ["lib"]
 [dependencies]
 image.workspace = true
 anyhow.workspace = true
+resvg.workspace = true
+usvg.workspace = true
