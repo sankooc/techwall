@@ -1,7 +1,6 @@
 use std::{fs::{self}, io::Write};
 
 use anyhow::{Ok, Result};
-use crawler::convert;
 use flate2::Compression;
 use serde::Serialize;
 use flate2::write::GzEncoder;
@@ -62,7 +61,7 @@ fn main() {
         println!("parse: {}", ll);
         // build_resouce(ll);
         let data = get_svg_bytes(ll).unwrap();
-        let (pix, scale) = convert::convert_svg_to_png(data).unwrap();
+        let (pix, scale) = techwall::png::convert_svg_to_png(data).unwrap();
         let w = pix.width() / 10;
         let h = pix.height() / 10;
         let content = pix.encode_png().unwrap();
