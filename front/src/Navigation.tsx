@@ -8,7 +8,9 @@ const App = () => {
 
     const frames = [
         new Frame('def', "#f0f0f0", 0, 0),
-        new Frame('text', "/techwall/resource/bg/textile-bg.jpg", 0, 0)
+        new Frame('text', "/techwall/background/textile-bg.jpg", 0, 0),
+        new Frame('text', "https://i.ibb.co/tCr8qFs/paper.jpg", 0, 0),
+        new Frame('text', "https://i.postimg.cc/gjZkNGWm/pexels-shonejai-445753-1227511.jpg", 0, 0),
     ];
     useEffect(() => {
         fetch("/techwall/resource/meta").then((response) => {

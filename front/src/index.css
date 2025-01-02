@@ -126,3 +126,14 @@ button:focus-visible {
   animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform, opacity;
 }
+
+.icon-and-dimension-setter {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.icon-and-dimension-setter img {
+  pointer-events: none;
+}
